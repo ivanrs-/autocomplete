@@ -13,23 +13,10 @@ AutoSuggest = (() => {
     let content = document.getElementById('notes')
     let noteAutoSuggest = null;
 
-    initControl = () => {
-        noteAutoSuggest = new Awesomplete(content, {
-            //list: ["hello", "my", "name", "is", "ari"],
-            filter: function (text, input) {
-                return Awesomplete.FILTER_CONTAINS(text, input.match(/[^ ]*$/)[0]);
-            },
-
-            item: function (text, input) {
-                return Awesomplete.ITEM(text, input.match(/[^,]*$/)[0]);
-            },
-
-            replace: function (text) {
-                let before = this.input.value.match(/^.+ \s*|/)[0];
-                this.input.value = before + text + " ";
-            }
-        })
-    };
+    initialize = () => {
+        noteAutoSuggest = autoSuggest(content)
+        itemSource(noteAutoSuggest)
+    }
 
     /**
      * Add listeners to DOM elements
@@ -43,35 +30,52 @@ AutoSuggest = (() => {
             if (code === 37 || code === 38 || code === 39 || code === 40 || code === 27 || code === 13)
                 return;
             // Set control source for data sentences
-            setSource()
-        });
+            itemSource(this)
+        })
 
         // Submit listener
         submit.addEventListener('click', (e) => {
             Notes.save(content.value)
-        });      
-    };
-
-    /**
-     * 
-     */
-    setSource = () => {
-        //noteAutoSuggest.list= ["hello", "my", "name", "is", "ari"];
-        const murl = 'https://type.fit/api/quotes';
-        fetch(murl).then(r =>
-            r.json()).then(d => {
-            noteAutoSuggest.list = d.map(r => r.text);
-        });
+        })
     }
 
     // Expose needed methods
     return{
-        initControl,
+        initialize,
         addListeners
     }
     
 })();
 
+let itemSource = async (element) =>{    
+    //noteAutoSuggest.list= ["hello", "my", "name", "is", "ari"];
+    const murl = 'https://type.fit/api/quotes'
+    let response = await fetch(murl)
+    let data = await response.json()
+    element.list = data.map(r => r.text)
+}
+
+/**
+ * Set HTML DOM element as AutoSuggest
+ * @param {HTMLElement} element 
+ */
+let autoSuggest = (element) =>{
+    return new Awesomplete(element, {
+        //list: ["hello", "my", "name", "is", "ari"],
+        filter: function (text, input) {
+            return Awesomplete.FILTER_CONTAINS(text, input.match(/[^ ]*$/)[0]);
+        },
+
+        item: function (text, input) {
+            return Awesomplete.ITEM(text, input.match(/[^,]*$/)[0]);
+        },
+
+        replace: function (text) {
+            let before = this.input.value.match(/^.+ \s*|/)[0];
+            this.input.value = before + text + " ";
+        }
+    })
+}
 
 /**
  * Notes operations
