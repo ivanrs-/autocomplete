@@ -1,65 +1,95 @@
 /** 
- * Autosuggest Notes V1.0.1
+ * Autosuggest Notes V1.0.2
  * Author: Ivan Ramos <rs.jivan@gmail.com>
  * Updated: MAY 08, 2020
  * Description: Provides autocomplete and suggestions capabilities
  *              for notes field so users can improve their time by
  *              using predefined sentences or words.
  * Changes:
- * IR MAY 08, 2020: Initial testings, using IIFE 
+ * IR MAY 08, 2020: Initial testings, using IIFE 🍃 
+ * IR May 20, 2020: Destructure implementation for multiple controls 🧬 
+ * IR May 21, 2020: Independent controls data source and unified event listeners 🐜 
  */
-AutoSuggest = (() => {
-    const submit = document.getElementById('submit')
-    let content = document.getElementById('notes')
-    let noteAutoSuggest = null;
+
+// Using Revealing Module Pattern
+Suggest = (() => {
+    // key and value in Map can be in any data type
+    // for testing I'm using an [object,DOM Element] key pairs
+    let suggestInputs = new Map([
+        [{
+            id: 'obj_desc',
+            url: 'https://jsonplaceholder.typicode.com/posts',
+            jkey: 'title'
+        }, document.getElementById('obj_desc')],
+        [{
+            id: 'result',
+            url: 'https://jsonplaceholder.typicode.com/posts',
+            jkey: 'body'
+        }, document.getElementById('results')],
+        [{
+            id: 'result',
+            url: 'https://jsonplaceholder.typicode.com/photos',
+            jkey: 'title'
+        }, document.getElementById('actions')],
+        [{
+            id: 'nextVisit',
+            url: 'https://type.fit/api/quotes',
+            jkey: 'text'
+        }, document.getElementById('next_visit')]
+    ])
+    
+    console.dir(suggestInputs);
 
     initialize = () => {
-        noteAutoSuggest = autoSuggest(content)
-        itemSource(noteAutoSuggest)
+        setItemSource()
+        addListeners()
     }
 
+    setItemSource = async () => {
+        // Return new initialization of awesomplete
+        for (const [key,input] of suggestInputs) {
+            let element = setAutoSuggest(input)
+            //   element.list = ["hello", "my", "name", "is", "ari"];
+            let response = await fetch(key.url)
+            let data = await response.json()
+            element.list = data.map(r => r[key.jkey])
+        }
+    }
+    
     /**
      * Add listeners to DOM elements
-     * content -> textarea for notes input
-     * submit  -> submit button
      */
     addListeners = () => {
-        // Text area listener
-        content.addEventListener('keyup', (e) => {
-            let code = (e.keyCode || e.which);
-            if (code === 37 || code === 38 || code === 39 || code === 40 || code === 27 || code === 13)
-                return;
-            // Set control source for data sentences
-            itemSource(this)
-        })
+        for (const input of suggestInputs.values()) {
+            input.addEventListener('keyup', (e) => {
+                let code = (e.keyCode || e.which);
+                if (code === 37 || code === 38 || code === 39 || code === 40 || code === 27 || code === 13)
+                    return;
+            })
+
+            input.addEventListener('change', () => {
+                notes.save(suggestInputs)
+            })
+        }
 
         // Submit listener
-        submit.addEventListener('click', (e) => {
-            Notes.save(content.value)
+        document.getElementById('submit').addEventListener('click', (e) => {
+            notes.save(suggestInputs)
         })
     }
-
     // Expose needed methods
     return{
-        initialize,
-        addListeners
+        initialize
     }
     
 })();
 
-let itemSource = async (element) =>{    
-    //noteAutoSuggest.list= ["hello", "my", "name", "is", "ari"];
-    const murl = 'https://type.fit/api/quotes'
-    let response = await fetch(murl)
-    let data = await response.json()
-    element.list = data.map(r => r.text)
-}
-
 /**
  * Set HTML DOM element as AutoSuggest
+ * (Object literal notation 'pattern')
  * @param {HTMLElement} element 
  */
-let autoSuggest = (element) =>{
+let setAutoSuggest = (element) =>{
     return new Awesomplete(element, {
         //list: ["hello", "my", "name", "is", "ari"],
         filter: function (text, input) {
@@ -72,21 +102,28 @@ let autoSuggest = (element) =>{
 
         replace: function (text) {
             let before = this.input.value.match(/^.+ \s*|/)[0];
-            this.input.value = before + text + " ";
+            this.input.value = before.trim() + " " + text.trim() + " ";
         }
     })
 }
 
 /**
  * Notes operations
+ * (Revealing Module Pattern)
  */
-const Notes =(() => {
-    save = (note) =>  {
-        alert('Proceed to save?\n' + note)
-        document.getElementById('final').value(note)
-    }
+const notes = (function() {
+    let finalNotes = document.getElementById('final_notes')
 
-    return{
+    save = (suggestInputs) => {
+        let note = ''
+        for (const input of suggestInputs.values()) {
+            note += input.value + ' '
+        }
+
+        //alert('Proceed to save?\n' + note.trimStart() )
+        finalNotes.textContent = note.trimStart()
+    }
+    return {
         save
     }
-})();
+})()

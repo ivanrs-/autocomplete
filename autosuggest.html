@@ -1,58 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoSuggest Completion</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.1/awesomplete.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
     <style>
         div.awesomplete {
             width: 100%;
         }
     </style>
 </head>
+
+<!--class="awesomplete" data-list="Closed, Open for business, Other option"-->
+<!--class="awesomplete" data-list="Delivery time, ProVantage, Brakes & Pads"-->
 <body>
-
-
     <div class="ui form" style="margin:10px;">
-
-<label>
-    Description <br />
-    <input class="awesomplete" data-list="I spoke with {Juan}, I spoke with {Pedro}, I spoke with Owner, I spoke with Parts Manager" />
-    <br />Business is <br />
-    <input class="awesomplete" data-list="Closed, Open for business, Other option" />
-    <br />Customer is interested in <br />
-    <input class="awesomplete" data-list="Delivery time, ProVantage, Brakes & Pads" />
-</label>
         <div class="ui raised segment">
-            <a class="ui teal ribbon label">Notes</a>
+            <a class="ui teal ribbon label">Objective Description</a>
+            <input id="obj_desc" data-multiple />
+            <a class="ui teal ribbon label">Results</a>
+            <input id="results" data-multiple />
+            <a class="ui teal ribbon label">Actions</a>
+            <input id="actions" data-multiple />
+       </div>
+        <div class="ui raised segment">
+            <a class="ui teal ribbon label">Next Visit Objectives(s)</a>
             <div class="field">
-                <textarea id="notes" rows="7" placeholder="Input your notes" data-multiple></textarea>
+                <textarea id="next_visit" rows="7" placeholder="Input your notes" data-multiple></textarea>
             </div>
             <button id="submit" class="ui green button" type="submit">Save</button>
         </div>
 
         <div class="ui message">
             <div class="header">
-                Notes Captured
+                Notes Entered:
             </div>
-            <div id="final"></div>
+            <span id="final_notes"></span>
         </div>
     </div>
 
-    
+
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js'></script>
     <script src="http://leaverou.github.io/awesomplete/awesomplete.js"></script>
     <script src="autosuggest.js"></script>
-    <script>    
+    <script>
         document.onreadystatechange = () => {
             if (document.readyState === 'interactive') {
-                AutoSuggest.initialize()
-                AutoSuggest.addListeners()
+                Suggest.initialize()
             }
         }
     </script>
 </body>
+
 </html>
