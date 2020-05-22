@@ -7,40 +7,50 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.1/awesomplete.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
     <style>
-        div.awesomplete {
-            width: 100%;
-        }
+        div.awesomplete { width: 100%; }
         .dropdown{ width: 100%;}
     </style>
 </head>
 <body>
     <div class="ui form" style="margin:10px;">
-        
+        <div id="warnmessage" class="ui icon message">
+            <i class="hand point down outline icon"></i>
+            <div class="content">
+                <div class="header">
+                    Please select an objective
+                </div>
+                <p>You cannot add notes until you have selected an appointment objective.</p>
+            </div>
+        </div>
         <div class="ui raised segment">
             <a class="ui orange ribbon label">Objective</a>
             <select id="objective"></select>
-
-            <a class="ui orange ribbon label">Description</a>
-            <textarea id="obj_desc" rows="5" placeholder="Purpose of appointment..." data-multiple></textarea>
+            
+            <div class="content">
+                <a class="ui orange ribbon label">Description</a>
+                <textarea id="obj_desc" rows="5" placeholder="Purpose of appointment..." data-multiple></textarea>
+            </div>
         </div>
         
-        <div class="ui raised segment">            
+        <div class="ui raised segment content">            
             <a class="ui blue ribbon label">Results</a>
             <textarea id="results" rows="5" placeholder="Results obtained..." data-multiple ></textarea>
             
             <a class="ui blue ribbon label">Actions</a>
             <textarea id="actions" rows="5" placeholder="Actions performed..." data-multiple ></textarea>
         </div>
-        <div class="ui raised segment">
+        <div class="ui raised segment content">
             <a class="ui teal ribbon label">Next Visit Objectives(s)</a>
             <textarea id="next_visit" rows="7" placeholder="What are your next visits objectives..." data-multiple></textarea>
         </div>
-        <button id="submit" class="ui green button" type="submit">Save Notes</button>
-        <div class="ui message">
-            <div class="header">
-                Notes Entered:
+        <div class="content">
+            <button id="submit" class="ui green button" type="submit">Save Notes</button>
+            <div class="ui message">
+                <div class="header">
+                    Notes Entered:
+                </div>
+                <span id="final_notes"></span>
             </div>
-            <span id="final_notes"></span>
         </div>
     </div>
 

@@ -14,8 +14,7 @@
  */
 // Using Revealing Module Pattern
 Suggest = (() => {
-    let suggestInputs = ControlsMapping()    
-
+    let suggestInputs = ControlsMapping()
     /**
      * Main exposed function to initialize controls and attach events
      * - Populate main dropdown objective
@@ -24,8 +23,9 @@ Suggest = (() => {
     initialize = () => {        
         addObjectives()
         addListeners()
-    }
-    
+        divContentDisabling(true)
+        
+    }    
     /**
      * Populate objectives dropdown from objectives array of objects
      */
@@ -53,6 +53,8 @@ Suggest = (() => {
         // (using jquery since it's dependant for the SemanticUI)
         $('#objective').dropdown({
             onChange: function (objectiveId, text) {
+                $('#warnmessage').transition('fade'); // hide information message
+                divContentDisabling(false) // enable content inside divs
                 console.log('Objective:', objectiveId, '-', text);
                 // Set items source every time the objective changes
                 setItemsSource(objectiveId)
@@ -101,6 +103,12 @@ Suggest = (() => {
                 .map(control => setAutoSuggest(input, control.options))
         })
     }
+
+    /**
+     * Validate if notes elements should be enabled for editing or not
+     * By default they are disabled until an objective has been selected
+     */
+    divContentDisabling = (flag) => $(".content").children().prop('disabled', flag);
     
     // Exposed needed methods
     return{
@@ -142,13 +150,27 @@ const notes = (() =>{
     let finalNotes = document.getElementById('final_notes')
 
     save = (suggestInputs) => {
-        let note = ''
-        for (const input of suggestInputs.values()) {
-            note += input.value + ' '
-        }
+        
+        // for (const input of suggestInputs.values()) {
+        //     note += input.value + ' '
+        // }
+        let objectiveId = $('#objective').dropdown('get value');
+        let objective = $('#objective').dropdown('get text');
+        let note = '<b>Objective</b>: ' + objective +  '<br>';
+        //(value, key) => from Map
+        // HTMLElement is placed in value pair and {objective->options} is placed in key pair
+        suggestInputs.forEach((input, key) => {
+            key // -> { id:'someid', objective: 1, options: [ "text1", "text2", "text3"...]},
+                // get only the object where objective == objectiveId
+                .filter(mappedControl => mappedControl.objective == objectiveId)
+                // from filtered 'control' send the input (value key pair) and the filtered options for instatiation
+                .map(control => {
+                    note += '<b>' + control.id + '</b>:' + input.value + '<br>'
+                })
+        })
 
         //alert('Proceed to save?\n' + note.trimStart() )
-        finalNotes.textContent = note.trimStart()
+        finalNotes.innerHTML = note.trimStart()
     }
     return {
         save
