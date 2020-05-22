@@ -53,7 +53,7 @@ Suggest = (() => {
         // (using jquery since it's dependant for the SemanticUI)
         $('#objective').dropdown({
             onChange: function (objectiveId, text) {
-                $('#warnmessage').transition('fade'); // hide information message
+                $('#warnmessage').remove(); // hide information message
                 divContentDisabling(false) // enable content inside divs
                 console.log('Objective:', objectiveId, '-', text);
                 // Set items source every time the objective changes
